@@ -25,7 +25,7 @@ class BillingFixtures extends Fixture
 
 
         $uobject = new UserBillingObject($item);
-        $manager->persist($item);
+        $uobject->addUserBillingData(new UserBillingData($item));
 
         $manager->persist($item);
         $manager->persist($uobject);
