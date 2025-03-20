@@ -10,6 +10,7 @@ use App\Common\BillingItemUID;
 use App\Entity\BillingRepositoryItem;
 use App\Entity\UserBillingObject;
 use App\Entity\UserBillingData;
+use App\Factory\CollectorFactory;
 // use App\Entity\User;
 // use App\Entity\UserBilling;
 // use App\Entity\ColocationSingleRack;
@@ -25,7 +26,15 @@ class BillingFixtures extends Fixture
 
 
         $uobject = new UserBillingObject($item);
-        $uobject->addUserBillingData(new UserBillingData($item));
+        $udata = new UserBillingData($item);
+
+        $collectors = CollectorFactory::createCollectors($item->getUid());
+
+        foreach($collectors as $collector) {
+            $udata->addCollector($collector);
+        }
+
+        $uobject->addUserBillingData($udata);
 
         $manager->persist($item);
         $manager->persist($uobject);

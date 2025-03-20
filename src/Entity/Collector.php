@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CollectorRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CollectorRepository::class)]
@@ -13,43 +15,31 @@ class Collector
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?float $amount = null;
-
-    #[ORM\Column]
-    private ?int $timestamp = null;
-
     #[ORM\ManyToOne(inversedBy: 'collectors')]
     #[ORM\JoinColumn(nullable: false)]
     private ?UserBillingData $userBillingItem = null;
 
+    /**
+     * @var Collection<int, CollectorData>
+     */
+    #[ORM\OneToMany(targetEntity: CollectorData::class, mappedBy: 'collector', orphanRemoval: true)]
+    private Collection $collectorData;
+
+    #[ORM\Column(length: 36)]
+    private ?string $uid = null;
+
+    #[ORM\ManyToOne(inversedBy: 'collector')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Tariff $tariff = null;
+
+    public function __construct()
+    {
+        $this->collectorData = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getAmount(): ?float
-    {
-        return $this->amount;
-    }
-
-    public function setAmount(?float $amount): static
-    {
-        $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function getTimestamp(): ?int
-    {
-        return $this->timestamp;
-    }
-
-    public function setTimestamp(int $timestamp): static
-    {
-        $this->timestamp = $timestamp;
-
-        return $this;
     }
 
     public function getUserBillingItem(): ?UserBillingData
@@ -60,6 +50,60 @@ class Collector
     public function setUserBillingItem(?UserBillingData $userBillingItem): static
     {
         $this->userBillingItem = $userBillingItem;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CollectorData>
+     */
+    public function getCollectorData(): Collection
+    {
+        return $this->collectorData;
+    }
+
+    public function addCollectorData(CollectorData $collectorData): static
+    {
+        if (!$this->collectorData->contains($collectorData)) {
+            $this->collectorData->add($collectorData);
+            $collectorData->setCollector($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollectorData(CollectorData $collectorData): static
+    {
+        if ($this->collectorData->removeElement($collectorData)) {
+            // set the owning side to null (unless already changed)
+            if ($collectorData->getCollector() === $this) {
+                $collectorData->setCollector(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUid(): ?string
+    {
+        return $this->uid;
+    }
+
+    public function setUid(string $uid): static
+    {
+        $this->uid = $uid;
+
+        return $this;
+    }
+
+    public function getTariff(): ?Tariff
+    {
+        return $this->tariff;
+    }
+
+    public function setTariff(?Tariff $tariff): static
+    {
+        $this->tariff = $tariff;
 
         return $this;
     }
