@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 use App\Entity\BillingRepositoryItem;
+use App\Entity\BillingRepositoryData;
 
 #[ORM\Entity(repositoryClass: UserBillingObjectRepository::class)]
 class UserBillingObject
@@ -21,9 +22,9 @@ class UserBillingObject
     // private string $repositoryBillingItemUID;
 
     // Define the many-to-one relationship without referencing the Rep class
-    #[ORM\ManyToOne(targetEntity: 'App\Entity\BillingRepositoryItem', inversedBy: 'userBillingObjects')]
-    #[ORM\JoinColumn(name: 'repository_billing_item', referencedColumnName: 'uid')]
-    private ?object $repositoryBillingItem = null;
+    // #[ORM\ManyToOne(targetEntity: 'App\Entity\BillingRepositoryItem', inversedBy: 'userBillingObjects')]
+    // #[ORM\JoinColumn(name: 'repository_billing_item', referencedColumnName: 'uid')]
+    // private ?object $repositoryBillingItem = null;
 
     /**
      * @var Collection<int, UserBillingData>
@@ -34,6 +35,8 @@ class UserBillingObject
     public function __construct(BillingRepositoryItem $item) {
         $this->repositoryBillingItem = $item;
         $this->userBillingData = new ArrayCollection();
+        $data = new UserBillingData($item);
+        $this->addUserBillingData($data);
     }
 
     public function getId(): ?int
@@ -41,17 +44,17 @@ class UserBillingObject
         return $this->id;
     }
 
-    public function getRepositoryBillingItem(): ?BillingRepositoryItem
-    {
-        return $this->repositoryBillingItem;
-    }
+    // public function getRepositoryBillingItem(): ?BillingRepositoryItem
+    // {
+    //     return $this->repositoryBillingItem;
+    // }
 
-    public function setRepositoryBillingItem(BillingRepositoryItem $repositoryBillingItem): static
-    {
-        $this->repositoryBillingItem = $repositoryBillingItem;
+    // public function setRepositoryBillingItem(BillingRepositoryItem $repositoryBillingItem): static
+    // {
+    //     $this->repositoryBillingItem = $repositoryBillingItem;
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
     /**
      * @return Collection<int, UserBillingData>

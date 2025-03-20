@@ -27,11 +27,7 @@ class BillingFixtures extends Fixture
         $uobject = new UserBillingObject($item);
         $manager->persist($item);
 
-        $udata = new UserBillingData($item);
-        $uobject->addUserBillingData($udata);
-
         $manager->persist($item);
-        $manager->persist($udata);
         $manager->persist($uobject);
         $manager->flush();
         // $item = new ColocationSingleRack();
