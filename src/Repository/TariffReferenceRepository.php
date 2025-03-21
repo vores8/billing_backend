@@ -2,39 +2,39 @@
 
 namespace App\Repository;
 
-use App\Entity\BillingItemReference;
+use App\Entity\TariffReference;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<BillingItemReference>
+ * @extends ServiceEntityRepository<TariffReference>
  */
-class BillingItemReferenceRepository extends ServiceEntityRepository
+class TariffReferenceRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, BillingItemReference::class);
+        parent::__construct($registry, TariffReference::class);
     }
 
     //    /**
-    //     * @return BillingItemReference[] Returns an array of BillingItemReference objects
+    //     * @return TariffReference[] Returns an array of TariffReference objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
+    //        return $this->createQueryBuilder('t')
+    //            ->andWhere('t.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('b.id', 'ASC')
+    //            ->orderBy('t.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?BillingItemReference
+    //    public function findOneBySomeField($value): ?TariffReference
     //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
+    //        return $this->createQueryBuilder('t')
+    //            ->andWhere('t.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()

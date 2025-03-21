@@ -7,9 +7,9 @@ use Doctrine\Persistence\ObjectManager;
 
 use App\Common\BillingItemUID;
 
-use App\Entity\BillingRepositoryItem;
+use App\Entity\BillingItemReference;
 use App\Entity\UserBillingObject;
-use App\Entity\UserBillingData;
+use App\Entity\Userbilingitem;
 use App\Factory\CollectorFactory;
 // use App\Entity\User;
 // use App\Entity\UserBilling;
@@ -20,13 +20,13 @@ class BillingFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $item = new BillingRepositoryItem(BillingItemUID::ColocationSingleRack);
+        $item = new BillingItemReference(BillingItemUID::ColocationSingleRack);
         $item->setTitle('Colocation Single Rack');
         $item->setIsRoot(true);
 
 
         $uobject = new UserBillingObject($item);
-        $udata = new UserBillingData($item);
+        $udata = new Userbilingitem($item);
 
         $collectors = CollectorFactory::createCollectors($item->getUid());
 

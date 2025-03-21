@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TariffRepository::class)]
-class Tariff
+class UserTariff
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,8 +18,12 @@ class Tariff
     /**
      * @var Collection<int, Collector>
      */
-    #[ORM\OneToMany(targetEntity: Collector::class, mappedBy: 'tariff', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Collector::class, mappedBy: 'userTariff', orphanRemoval: true)]
     private Collection $collector;
+
+    #[ORM\ManyToOne(inversedBy: 'tariffs')]
+    #[ORM\JoinColumn(nullable: false, name: 'reference', referencedColumnName: 'uid')]
+    private ?TariffReference $reference = null;
 
     public function __construct()
     {
@@ -57,6 +61,18 @@ class Tariff
                 $collector->setTariff(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getReference(): ?TariffReference
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?TariffReference $reference): static
+    {
+        $this->reference = $reference;
 
         return $this;
     }

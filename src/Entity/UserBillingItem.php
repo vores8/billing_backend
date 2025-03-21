@@ -8,20 +8,20 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserBillingDataRepository::class)]
-class UserBillingData
+class Userbilingitem
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userBillingData')]
+    #[ORM\ManyToOne(inversedBy: 'userBilingItem')]
     #[ORM\JoinColumn(nullable: false)]
     private ?UserBillingObject $userBillingObject = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userBillingData')]
-    #[ORM\JoinColumn(nullable: false, name: 'repository_billing_item_id', referencedColumnName: 'uid')]
-    private ?BillingRepositoryItem $billingRepositoryItem = null;
+    #[ORM\ManyToOne(inversedBy: 'userBilingItem')]
+    #[ORM\JoinColumn(nullable: false, name: 'reference', referencedColumnName: 'uid')]
+    private ?BillingItemReference $billingItemReference = null;
 
     /**
      * @var Collection<int, Collector>
@@ -29,8 +29,8 @@ class UserBillingData
     #[ORM\OneToMany(targetEntity: Collector::class, mappedBy: 'userBillingItem', orphanRemoval: true)]
     private Collection $collectors;
 
-    public function __construct(BillingRepositoryItem $item) {
-        $this->billingRepositoryItem = $item;
+    public function __construct(BillingItemReference $item) {
+        $this->billingItemReference = $item;
         $this->collectors = new ArrayCollection();
     }
 
@@ -52,14 +52,14 @@ class UserBillingData
         return $this;
     }
 
-    public function getBillingRepositoryItem(): ?BillingRepositoryItem
+    public function getBillingItemReference(): ?BillingItemReference
     {
-        return $this->billingRepositoryItem;
+        return $this->billingItemReference;
     }
 
-    public function setBillingRepositoryItem(?BillingRepositoryItem $billingRepositoryItem): static
+    public function setBillingItemReference(?BillingItemReference $billingItemReference): static
     {
-        $this->billingRepositoryItem = $billingRepositoryItem;
+        $this->billingItemReference = $billingItemReference;
 
         return $this;
     }

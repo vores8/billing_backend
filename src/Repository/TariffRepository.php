@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Tariff;
+use App\Entity\UserTariff;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Tariff>
+ * @extends ServiceEntityRepository<UserTariff>
  */
 class TariffRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Tariff::class);
+        parent::__construct($registry, UserTariff::class);
     }
 
 //    /**
-//     * @return Tariff[] Returns an array of Tariff objects
+//     * @return UserTariff[] Returns an array of UserTariff objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -31,7 +31,7 @@ class TariffRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Tariff
+//    public function findOneBySomeField($value): ?UserTariff
 //    {
 //        return $this->createQueryBuilder('t')
 //            ->andWhere('t.exampleField = :val')

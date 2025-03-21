@@ -6,10 +6,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
-use App\Repository\BillingRepositoryItemRepository;
+use App\Repository\BillingItemReferenceRepository;
 
-#[ORM\Entity(repositoryClass: BillingRepositoryItemRepository::class)]
-class BillingRepositoryItem
+#[ORM\Entity(repositoryClass: BillingItemReferenceRepository::class)]
+class BillingItemReference
 {
     #[ORM\Id]
     // #[ORM\GeneratedValue]
@@ -26,15 +26,15 @@ class BillingRepositoryItem
     private Collection $userBillingObjects;
 
     /**
-     * @var Collection<int, UserBillingData>
+     * @var Collection<int, Userbilingitem>
      */
-    #[ORM\OneToMany(targetEntity: UserBillingData::class, mappedBy: 'billingRepositoryItem', orphanRemoval: true)]
-    private Collection $userBillingData;
+    #[ORM\OneToMany(targetEntity: Userbilingitem::class, mappedBy: 'billingItemReference', orphanRemoval: true)]
+    private Collection $userbilingitem;
 
     public function __construct($uid) {
         $this->userBillingObjects = new ArrayCollection();
         $this->uid = $uid;
-        $this->userBillingData = new ArrayCollection();
+        $this->userbilingitem = new ArrayCollection();
     }
 
     public function getUid(): ?string
@@ -72,29 +72,29 @@ class BillingRepositoryItem
     }
 
     /**
-     * @return Collection<int, UserBillingData>
+     * @return Collection<int, Userbilingitem>
      */
     public function getUserBillingData(): Collection
     {
-        return $this->userBillingData;
+        return $this->userbilingitem;
     }
 
-    public function addUserBillingData(UserBillingData $userBillingData): static
+    public function addUserBillingData(Userbilingitem $userbilingitem): static
     {
-        if (!$this->userBillingData->contains($userBillingData)) {
-            $this->userBillingData->add($userBillingData);
-            $userBillingData->setBillingRepositoryItem($this);
+        if (!$this->userbilingitem->contains($userbilingitem)) {
+            $this->userbilingitem->add($userbilingitem);
+            $userbilingitem->setBillingItemReference($this);
         }
 
         return $this;
     }
 
-    public function removeUserBillingData(UserBillingData $userBillingData): static
+    public function removeUserBillingData(Userbilingitem $userbilingitem): static
     {
-        if ($this->userBillingData->removeElement($userBillingData)) {
+        if ($this->userbilingitem->removeElement($userbilingitem)) {
             // set the owning side to null (unless already changed)
-            if ($userBillingData->getBillingRepositoryItem() === $this) {
-                $userBillingData->setBillingRepositoryItem(null);
+            if ($userbilingitem->getBillingItemReference() === $this) {
+                $userbilingitem->setBillingItemReference(null);
             }
         }
 

@@ -9,7 +9,7 @@ use App\Common\CollectorUID;
 use App\Common\TariffUID;
 
 use App\Entity\Collector;
-use App\Entity\Tariff;
+use App\Entity\UserTariff;
 
 class CollectorFactory {
 

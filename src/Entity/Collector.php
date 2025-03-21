@@ -17,7 +17,7 @@ class Collector
 
     #[ORM\ManyToOne(inversedBy: 'collectors')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?UserBillingData $userBillingItem = null;
+    private ?Userbilingitem $userBillingItem = null;
 
     /**
      * @var Collection<int, CollectorData>
@@ -30,7 +30,7 @@ class Collector
 
     #[ORM\ManyToOne(inversedBy: 'collector')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Tariff $tariff = null;
+    private ?UserTariff $usertariff = null;
 
     public function __construct()
     {
@@ -42,12 +42,12 @@ class Collector
         return $this->id;
     }
 
-    public function getUserBillingItem(): ?UserBillingData
+    public function getUserBillingItem(): ?Userbilingitem
     {
         return $this->userBillingItem;
     }
 
-    public function setUserBillingItem(?UserBillingData $userBillingItem): static
+    public function setUserBillingItem(?Userbilingitem $userBillingItem): static
     {
         $this->userBillingItem = $userBillingItem;
 
@@ -96,14 +96,14 @@ class Collector
         return $this;
     }
 
-    public function getTariff(): ?Tariff
+    public function getTariff(): ?UserTariff
     {
-        return $this->tariff;
+        return $this->usertariff;
     }
 
-    public function setTariff(?Tariff $tariff): static
+    public function setTariff(?UserTariff $usertariff): static
     {
-        $this->tariff = $tariff;
+        $this->usertariff = $usertariff;
 
         return $this;
     }
