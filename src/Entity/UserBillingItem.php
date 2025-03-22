@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserBillingDataRepository::class)]
-class Userbilingitem
+class UserBillingItem
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -26,7 +26,7 @@ class Userbilingitem
     /**
      * @var Collection<int, Collector>
      */
-    #[ORM\OneToMany(targetEntity: Collector::class, mappedBy: 'userBillingItem', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Collector::class, mappedBy: 'userBillingItem', orphanRemoval: true, cascade:['persist'])]
     private Collection $collectors;
 
     public function __construct(BillingItemReference $item) {
@@ -38,6 +38,11 @@ class Userbilingitem
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getReference() : ?BillingItemReference
+    {
+        return $this->billingItemReference;
     }
 
     public function getUserBillingObject(): ?UserBillingObject

@@ -23,14 +23,18 @@ class TariffReference
     #[ORM\OneToMany(targetEntity: UserTariff::class, mappedBy: 'reference', orphanRemoval: true)]
     private Collection $tariffs;
 
-    public function __construct()
+    #[ORM\Column]
+    private array $params = [];
+
+    public function __construct($uid)
     {
+        $this->uid = $uid;
         $this->tariffs = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getUid(): ?string
     {
-        return $this->id;
+        return $this->uid;
     }
 
     public function getTitle(): ?string
@@ -71,6 +75,18 @@ class TariffReference
                 $usertariff->setReference(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getParams(): array
+    {
+        return $this->params;
+    }
+
+    public function setParams(array $params): static
+    {
+        $this->params = $params;
 
         return $this;
     }

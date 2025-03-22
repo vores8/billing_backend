@@ -6,10 +6,12 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
 use App\Common\BillingItemUID;
+use App\Common\TariffUID;
 
 use App\Entity\BillingItemReference;
+use App\Entity\TariffReference;
 use App\Entity\UserBillingObject;
-use App\Entity\Userbilingitem;
+use App\Entity\UserBilingItem;
 use App\Factory\CollectorFactory;
 // use App\Entity\User;
 // use App\Entity\UserBilling;
@@ -23,22 +25,36 @@ class BillingFixtures extends Fixture
         $item = new BillingItemReference(BillingItemUID::ColocationSingleRack);
         $item->setTitle('Colocation Single Rack');
         $item->setIsRoot(true);
-
-
-        $uobject = new UserBillingObject($item);
-        $udata = new Userbilingitem($item);
-
-        $collectors = CollectorFactory::createCollectors($item->getUid());
-
-        foreach($collectors as $collector) {
-            $udata->addCollector($collector);
-        }
-
-        $uobject->addUserBillingData($udata);
-
         $manager->persist($item);
-        $manager->persist($uobject);
-        $manager->flush();
+
+        $tariff = new TariffREference(TariffUID::RackSpaceSingleRack);
+        $tariff->setTitle('test tariff');
+        $tariff->setParams(['rate' => 1]);
+        $manager->persist($tariff);
+
+        $tariff = new TariffREference(TariffUID::PowerUsage);
+        $tariff->setTitle('cumulative');
+        $tariff->setParams(['rate' => 1]);
+        $manager->persist($tariff);
+
+        $tariff = new TariffREference(TariffUID::PowerUsageAverage);
+        $tariff->setTitle('average');
+        $tariff->setParams(['rate' => 1]);
+        $manager->persist($tariff);
+
+
+        // $udata = new UserBilingItem($item);
+
+        // $collectors = CollectorFactory::createCollectors($item->getUid());
+
+        // foreach($collectors as $collector) {
+        //     $udata->addCollector($collector);
+        // }
+
+        // $uobject->addUserBillingData($udata);
+
+        // $manager->persist($item);
+        // $manager->persist($uobject);
         // $item = new ColocationSingleRack();
         // $item->setTitle("Colocation single rack");
         // $item->setIsRoot(true);
@@ -190,6 +206,6 @@ class BillingFixtures extends Fixture
         // // $manager->persist($userBilling);
         // // $ub6 = $userBilling;
 
-        // $manager->flush();
+        $manager->flush();
     }
 }

@@ -23,10 +23,15 @@ class UserTariff
 
     #[ORM\ManyToOne(inversedBy: 'tariffs')]
     #[ORM\JoinColumn(nullable: false, name: 'reference', referencedColumnName: 'uid')]
-    private ?TariffReference $reference = null;
+    private ?TariffReference $tariffReference = null;
 
-    public function __construct()
+    #[ORM\Column]
+    private array $params = [];
+
+    public function __construct(TariffReference $reference)
     {
+        $this->tariffReference = $reference;
+        $this->setParams($reference->getParams());
         $this->collector = new ArrayCollection();
     }
 
@@ -67,12 +72,24 @@ class UserTariff
 
     public function getReference(): ?TariffReference
     {
-        return $this->reference;
+        return $this->tariffReference;
     }
 
     public function setReference(?TariffReference $reference): static
     {
-        $this->reference = $reference;
+        $this->tariffReference = $reference;
+
+        return $this;
+    }
+
+    public function getParams(): array
+    {
+        return $this->params;
+    }
+
+    public function setParams(array $params): static
+    {
+        $this->params = $params;
 
         return $this;
     }

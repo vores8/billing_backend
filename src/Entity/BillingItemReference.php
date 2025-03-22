@@ -12,7 +12,6 @@ use App\Repository\BillingItemReferenceRepository;
 class BillingItemReference
 {
     #[ORM\Id]
-    // #[ORM\GeneratedValue]
     #[ORM\Column(name: 'uid', length: 36)]
     private ?string $uid = null;
 
@@ -26,14 +25,14 @@ class BillingItemReference
     private Collection $userBillingObjects;
 
     /**
-     * @var Collection<int, Userbilingitem>
+     * @var Collection<int, UserBillingItem>
      */
-    #[ORM\OneToMany(targetEntity: Userbilingitem::class, mappedBy: 'billingItemReference', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: UserBillingItem::class, mappedBy: 'billingItemReference', orphanRemoval: true)]
     private Collection $userbilingitem;
 
     public function __construct($uid) {
-        $this->userBillingObjects = new ArrayCollection();
         $this->uid = $uid;
+        $this->userBillingObjects = new ArrayCollection();
         $this->userbilingitem = new ArrayCollection();
     }
 
@@ -72,14 +71,14 @@ class BillingItemReference
     }
 
     /**
-     * @return Collection<int, Userbilingitem>
+     * @return Collection<int, UserBilingItem>
      */
     public function getUserBillingData(): Collection
     {
         return $this->userbilingitem;
     }
 
-    public function addUserBillingData(Userbilingitem $userbilingitem): static
+    public function addUserBillingData(UserBilingItem $userbilingitem): static
     {
         if (!$this->userbilingitem->contains($userbilingitem)) {
             $this->userbilingitem->add($userbilingitem);
@@ -89,7 +88,7 @@ class BillingItemReference
         return $this;
     }
 
-    public function removeUserBillingData(Userbilingitem $userbilingitem): static
+    public function removeUserBillingData(UserBilingItem $userbilingitem): static
     {
         if ($this->userbilingitem->removeElement($userbilingitem)) {
             // set the owning side to null (unless already changed)

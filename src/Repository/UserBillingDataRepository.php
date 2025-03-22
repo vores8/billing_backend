@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Userbilingitem;
+use App\Entity\UserBilingItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Userbilingitem>
+ * @extends ServiceEntityRepository<UserBilingItem>
  */
 class UserBillingDataRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Userbilingitem::class);
+        parent::__construct($registry, UserBilingItem::class);
     }
 
     //    /**
-    //     * @return Userbilingitem[] Returns an array of Userbilingitem objects
+    //     * @return UserBilingItem[] Returns an array of UserBilingItem objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class UserBillingDataRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Userbilingitem
+    //    public function findOneBySomeField($value): ?UserBilingItem
     //    {
     //        return $this->createQueryBuilder('u')
     //            ->andWhere('u.exampleField = :val')

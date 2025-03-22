@@ -17,20 +17,20 @@ class Collector
 
     #[ORM\ManyToOne(inversedBy: 'collectors')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Userbilingitem $userBillingItem = null;
+    private ?UserBillingItem $userBillingItem = null;
 
     /**
      * @var Collection<int, CollectorData>
      */
-    #[ORM\OneToMany(targetEntity: CollectorData::class, mappedBy: 'collector', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CollectorData::class, mappedBy: 'collector', orphanRemoval: true, cascade: ['persist'])]
     private Collection $collectorData;
 
     #[ORM\Column(length: 36)]
     private ?string $uid = null;
 
-    #[ORM\ManyToOne(inversedBy: 'collector')]
+    #[ORM\ManyToOne(inversedBy: 'collector', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?UserTariff $usertariff = null;
+    private ?UserTariff $userTariff = null;
 
     public function __construct()
     {
@@ -42,12 +42,12 @@ class Collector
         return $this->id;
     }
 
-    public function getUserBillingItem(): ?Userbilingitem
+    public function getUserBillingItem(): ?UserBilingItem
     {
         return $this->userBillingItem;
     }
 
-    public function setUserBillingItem(?Userbilingitem $userBillingItem): static
+    public function setUserBillingItem(?UserBillingItem $userBillingItem): static
     {
         $this->userBillingItem = $userBillingItem;
 
@@ -98,12 +98,12 @@ class Collector
 
     public function getTariff(): ?UserTariff
     {
-        return $this->usertariff;
+        return $this->userTariff;
     }
 
-    public function setTariff(?UserTariff $usertariff): static
+    public function setTariff(?UserTariff $userTariff): static
     {
-        $this->usertariff = $usertariff;
+        $this->userTariff = $userTariff;
 
         return $this;
     }
