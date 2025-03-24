@@ -100,5 +100,4 @@ class UserTariff
         return $this;
     }
 
-    public function apply
 }
