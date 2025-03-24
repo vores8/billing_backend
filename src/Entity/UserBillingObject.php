@@ -37,7 +37,7 @@ class UserBillingObject
         // $this->repositoryBillingItem = $item;
         $this->billingItems = new ArrayCollection();
         $data = new UserBillingItem($item);
-        $this->addUserBillingData($data);
+        $this->addUserBillingItem($data);
     }
 
     public function getId(): ?int
@@ -60,12 +60,12 @@ class UserBillingObject
     /**
      * @return Collection<int, UserBilingItem>
      */
-    public function getUserBillingData(): Collection
+    public function getUserBillingItems(): Collection
     {
         return $this->billingItems;
     }
 
-    public function addUserBillingData(UserBillingItem $item): static
+    public function addUserBillingItem(UserBillingItem $item): static
     {
         if (!$this->billingItems->contains($item)) {
             $this->billingItems->add($item);
@@ -75,7 +75,7 @@ class UserBillingObject
         return $this;
     }
 
-    public function removeUserBillingData(UserBillingItem $userBillingItem): static
+    public function removeUserBillingItem(UserBillingItem $userBillingItem): static
     {
         if ($this->billingItems->removeElement($userBillingItem)) {
             // set the owning side to null (unless already changed)
@@ -85,5 +85,20 @@ class UserBillingObject
         }
 
         return $this;
+    }
+
+    public function getAmountDue(int $startDate, int $endDate)
+    {
+        $amount = 0;
+        foreach ($this->billingItems as $billingItem) {
+            $amount = $amount + $billingItem->getAmountDue($startDate, $endDate);
+        }
+        return $amount;
+    }
+    public function getUserBillingItemByUID(string $uid): ?UserBillingItem {
+        $array = $this->billingItems->filter( function ($entity) use ($uid) {
+            return $entity->getReference()->getUid() == $uid;
+        });
+        return $array->first();
     }
 }

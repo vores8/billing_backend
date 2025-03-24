@@ -2,18 +2,18 @@
 
 namespace App\Repository;
 
-use App\Entity\UserBilingItem;
+use App\Entity\UserBillingItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<UserBilingItem>
  */
-class UserBillingDataRepository extends ServiceEntityRepository
+class UserBillingItemRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, UserBilingItem::class);
+        parent::__construct($registry, UserBillingItem::class);
     }
 
     //    /**

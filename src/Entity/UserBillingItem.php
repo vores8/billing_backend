@@ -2,12 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\UserBillingDataRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: UserBillingDataRepository::class)]
+use App\Repository\UserBillingItemRepository;
+use App\Common\Tarificator;
+
+
+#[ORM\Entity(repositoryClass: UserBillingItemRepository::class)]
 class UserBillingItem
 {
     #[ORM\Id]
@@ -15,11 +18,11 @@ class UserBillingItem
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userBilingItem')]
+    #[ORM\ManyToOne(inversedBy: 'userBillingItem')]
     #[ORM\JoinColumn(nullable: false)]
     private ?UserBillingObject $userBillingObject = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userBilingItem')]
+    #[ORM\ManyToOne(inversedBy: 'userBillingItem')]
     #[ORM\JoinColumn(nullable: false, name: 'reference', referencedColumnName: 'uid')]
     private ?BillingItemReference $billingItemReference = null;
 
@@ -98,4 +101,22 @@ class UserBillingItem
 
         return $this;
     }
+
+    public function getAmountDue(int $startDate, int $endDate)
+    {
+        $amount = 0;
+        foreach ($this->collectors as $collector) {
+            $data = $collector->getDataRange($startDate, $endDate);
+            $newAmount = Tarificator::apply($data, $collector->getTariff());
+            $amount = $amount + $newAmount;
+        }
+        return $amount;
+    }
+
+    public function getCollectorByUID(string $uid): ?Collector {
+        return $this->collectors->filter( function ($entity) use ($uid) {
+            return $entity->getUid() == $uid;
+        })->first();
+    }
+
 }

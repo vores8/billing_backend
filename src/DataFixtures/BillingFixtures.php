@@ -27,18 +27,23 @@ class BillingFixtures extends Fixture
         $item->setIsRoot(true);
         $manager->persist($item);
 
-        $tariff = new TariffREference(TariffUID::RackSpaceSingleRack);
+        $tariff = new TariffReference(TariffUID::RackSpaceSingleRack);
         $tariff->setTitle('test tariff');
         $tariff->setParams(['rate' => 1]);
         $manager->persist($tariff);
 
-        $tariff = new TariffREference(TariffUID::PowerUsage);
+        $tariff = new TariffReference(TariffUID::PowerUsage);
         $tariff->setTitle('cumulative');
         $tariff->setParams(['rate' => 1]);
         $manager->persist($tariff);
 
-        $tariff = new TariffREference(TariffUID::PowerUsageAverage);
+        $tariff = new TariffReference(TariffUID::PowerUsageAverage);
         $tariff->setTitle('average');
+        $tariff->setParams(['rate' => 1]);
+        $manager->persist($tariff);
+
+        $tariff = new TariffReference(TariffUID::Flat);
+        $tariff->setTitle('flat (does not depend on amount)');
         $tariff->setParams(['rate' => 1]);
         $manager->persist($tariff);
 

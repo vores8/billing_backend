@@ -93,4 +93,12 @@ class UserTariff
 
         return $this;
     }
+    public function setParam(string $paramName, float $paramValue): static
+    {
+        $this->params[$paramName] = $paramValue;
+
+        return $this;
+    }
+
+    public function apply
 }

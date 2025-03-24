@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\EntityManagerInterface;
+
 use App\Repository\CollectorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -106,5 +108,25 @@ class Collector
         $this->userTariff = $userTariff;
 
         return $this;
+    }
+
+    public function getDataRange(int $startDate, int $endDate) 
+    {
+
+        return $this->collectorData->filter( function ($entity) use ($startDate, $endDate) {
+            return $entity->getTimestamp() >= $startDate && $entity->getTimestamp() <= $endDate;
+        });
+
+        // $qb = $this->entityManager->createQueryBuilder();
+
+        // $query = $qb->select('c')
+        //     ->from('App\Entity\CollectorData', 'c')
+        //     ->where('c.timestamp >= :start')
+        //     ->andWhere('c.timestamp <= :end')
+        //     ->setParameter('start', $startDate)
+        //     ->setParameter('end', $endDate)
+        //     ->getQuery();
+
+        // return $query->getResult();
     }
 }
