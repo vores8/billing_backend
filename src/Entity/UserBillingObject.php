@@ -33,6 +33,9 @@ class UserBillingObject
     #[ORM\OneToMany(targetEntity: UserBillingItem::class, mappedBy: 'userBillingObject', orphanRemoval: true, cascade: ['persist'])]
     private Collection $billingItems;
 
+    #[ORM\ManyToOne(inversedBy: 'billigObject')]
+    private ?User $user = null;
+
     public function __construct(BillingItemReference $item) {
         // $this->repositoryBillingItem = $item;
         $this->billingItems = new ArrayCollection();
@@ -100,5 +103,17 @@ class UserBillingObject
             return $entity->getReference()->getUid() == $uid;
         });
         return $array->first();
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }
