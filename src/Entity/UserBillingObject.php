@@ -36,8 +36,9 @@ class UserBillingObject
     #[ORM\ManyToOne(inversedBy: 'billigObject')]
     private ?User $user = null;
 
-    public function __construct(BillingItemReference $item) {
+    public function __construct(User $user, BillingItemReference $item) {
         // $this->repositoryBillingItem = $item;
+        $this->setUser($user);
         $this->billingItems = new ArrayCollection();
         $data = new UserBillingItem($item);
         $this->addUserBillingItem($data);
