@@ -34,7 +34,13 @@ class CollectorFactory {
             $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::AverageRateAbove);
             $collector->setTariff(new UserTariff($tr));
             $item->addCollector($collector);
-        }
+        } elseif ($item->getReference()->getUid() == BillingItemUID::ColocationPrivateRack) {
+            $collector  = new Collector();
+            $collector->setUid(CollectorUID::PowerUsage);
+            $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::AverageFactorAbove);
+            $collector->setTariff(new UserTariff($tr));
+            $item->addCollector($collector);
+        } 
 
         return $item;
     }
