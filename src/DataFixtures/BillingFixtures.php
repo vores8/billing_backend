@@ -22,30 +22,37 @@ class BillingFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $item = new BillingItemReference(BillingItemUID::ColocationSingleRack);
-        $item->setTitle('Colocation Single Rack');
+        $item = new BillingItemReference(BillingItemUID::ColocationShared);
+        $item->setTitle('Colocation Shared');
         $item->setIsRoot(true);
         $manager->persist($item);
 
-        $tariff = new TariffReference(TariffUID::RackSpaceSingleRack);
-        $tariff->setTitle('test tariff');
-        $tariff->setParams(['rate' => 1]);
-        $manager->persist($tariff);
-
-        $tariff = new TariffReference(TariffUID::PowerUsage);
-        $tariff->setTitle('cumulative');
-        $tariff->setParams(['rate' => 1]);
-        $manager->persist($tariff);
-
-        $tariff = new TariffReference(TariffUID::PowerUsageAverage);
-        $tariff->setTitle('average');
-        $tariff->setParams(['rate' => 1]);
-        $manager->persist($tariff);
-
         $tariff = new TariffReference(TariffUID::Flat);
-        $tariff->setTitle('flat (does not depend on amount)');
-        $tariff->setParams(['rate' => 1]);
+        $tariff->setTitle('flat tariff');
+        $tariff->setParams(['rate' => 150]);
         $manager->persist($tariff);
+
+        $tariff = new TariffReference(TariffUID::Average);
+        $tariff->setTitle('average with rate');
+        $tariff->setParams(['rate' => 1, 'limit' => 1, 'above' => 1]);
+        $manager->persist($tariff);
+
+        $tariff = new TariffReference(TariffUID::AverageRateAbove);
+        $tariff->setTitle('average with new rate above limit');
+        $tariff->setParams(['rate' => 1, 'limit' => 1, 'above' => 1]);
+        $manager->persist($tariff);
+
+        $tariff = new TariffReference(TariffUID::AverageFactorAbove);
+        $tariff->setTitle('average with factor*rate above limit');
+        $tariff->setParams(['rate' => 1, 'limit' => 1, 'above' => 1]);
+        $manager->persist($tariff);
+
+        $tariff = new TariffReference(TariffUID::OneTime);
+        $tariff->setTitle('single instance billing');
+        $tariff->setParams(['rate' => 1, 'due_date' => 0, 'completed' => 0]);
+        $manager->persist($tariff);
+
+
 
 
         // $udata = new UserBilingItem($item);

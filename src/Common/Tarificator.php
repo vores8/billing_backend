@@ -26,19 +26,75 @@ class Tarificator {
     //     $this->manager = $entityManager;
     // }
 
+    static function calculateAverage(Collection $data) : float
+    {
+
+        if (count($data) <= 0) {
+            return 0;
+        }
+
+        $sortedData = $data->toArray();
+        
+        usort($sortedData, function ($a, $b) {
+            return $a->getTimestamp() <=> $b->getTimestamp();
+        });
+
+        $totalAmount = 0;
+        $totalDuration = 0;
+        
+        for ($i = 1; $i < count($data); $i++) {
+            $currentTimestamp = $sortedData[$i - 1]->getTimestamp();
+            $nextTimestamp = $sortedData[$i]->getTimestamp();       
+            $duration = $nextTimestamp - $currentTimestamp;
+            $amount = 0.5 * ($sortedData[$i]->getAmount() + $sortedData[$i - 1]->getAmount());
+            $totalAmount += $amount * $duration;
+        }
+
+        $minTimestamp = min($data->map(fn($item) => $item->getTimestamp())->toArray());
+        $maxTimestamp = max($data->map(fn($item) => $item->getTimestamp())->toArray());             
+        $totalDuration = $maxTimestamp - $minTimestamp;        
+
+        $averageAmount = $totalAmount / $totalDuration;
+
+        // return $totalAmount;
+        return $averageAmount;
+
+    }
+
     public static function apply(Collection $collectorData, UserTariff $tariff): float 
     {
 
         if ($tariff->getreference()->getUid() == TariffUID::Flat) {
             return $tariff->getParams()['rate'];
 
-        } elseif ($tariff->getreference()->getUid() == TariffUID::PowerUsage) {
-            $amount = 0;
+        } elseif ($tariff->getreference()->getUid() == TariffUID::Average) {
+            $average = Tarificator::calculateAverage($collectorData);
+            return $tariff->getParams()['rate'] * $average;
 
-            foreach($collectorData as $data) {
-                $amount = $amount + $data->getAmount();
+        } elseif ($tariff->getreference()->getUid() == TariffUID::AverageRateAbove) {
+            $average = Tarificator::calculateAverage($collectorData);
+            $limit = $tariff->getParams()['limit'];
+
+            if ($average <= $limit)
+            {
+                return $tariff->getParams()['rate'] * $average;
             }
-            return $tariff->getParams()['rate'] * $amount;
+            $belowLimit = $average;
+            $aboveLimit = $average - $limit;
+
+            return $tariff->getParams()['rate'] * $belowLimit + $tariff->getParams()['above'] * $aboveLimit;
+
+        }  elseif ($tariff->getreference()->getUid() == TariffUID::AverageFactorAbove) {
+            $average = Tarificator::calculateAverage($collectorData);
+            $limit = $tariff->getParams()['limit'];
+            if ($average <= $limit)
+            {
+                return $tariff->getParams()['rate'] * $amount;
+            }
+            $belowLimit = $average;
+            $aboveLimit = $average - $limit;
+
+            return $tariff->getParams()['rate'] * $belowLimit + $tariff->getParams()['rate'] * $tariff->getParams()['factor'] * $aboveLimit;
 
         }
         return 0;

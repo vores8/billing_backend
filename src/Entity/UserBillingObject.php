@@ -36,11 +36,11 @@ class UserBillingObject
     #[ORM\ManyToOne(inversedBy: 'billigObject')]
     private ?User $user = null;
 
-    public function __construct(User $user, BillingItemReference $item) {
+    public function __construct(User $user, BillingItemReference $item, int $factor = 1) {
         // $this->repositoryBillingItem = $item;
         $this->setUser($user);
         $this->billingItems = new ArrayCollection();
-        $data = new UserBillingItem($item);
+        $data = new UserBillingItem($item, $factor);
         $this->addUserBillingItem($data);
     }
 

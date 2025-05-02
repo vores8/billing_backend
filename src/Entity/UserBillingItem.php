@@ -32,8 +32,12 @@ class UserBillingItem
     #[ORM\OneToMany(targetEntity: Collector::class, mappedBy: 'userBillingItem', orphanRemoval: true, cascade:['persist'])]
     private Collection $collectors;
 
-    public function __construct(BillingItemReference $item) {
+    #[ORM\Column]
+    private ?int $factor = 1;
+
+    public function __construct(BillingItemReference $item, int $factor) {
         $this->billingItemReference = $item;
+        $this->factor = $factor;
         $this->collectors = new ArrayCollection();
     }
 
@@ -117,6 +121,18 @@ class UserBillingItem
         return $this->collectors->filter( function ($entity) use ($uid) {
             return $entity->getUid() == $uid;
         })->first();
+    }
+
+    public function getFactor(): ?int
+    {
+        return $this->factor;
+    }
+
+    public function setFactor(int $factor): static
+    {
+        $this->factor = $factor;
+
+        return $this;
     }
 
 }

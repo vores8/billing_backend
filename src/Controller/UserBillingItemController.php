@@ -10,8 +10,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 use App\Common\CollectorUID;
 use App\Common\TariffUID;
+use App\Common\BillingItemUID;
 use App\Entity\BillingItemReference;
 use App\Entity\UserBillingObject;
+use App\Entity\UserBillingItem;
 use App\Entity\UserTariff;
 use App\Entity\TariffReference;
 use App\Common\CollectorFactory;
@@ -27,13 +29,44 @@ final class UserBillingItemController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
+
+// functions to populate user billing items    
+
+    function populateItemColocationShared(UserBillingItem $item) : UserBillingItem
+    {
+        $collector = $item->getCollectorByUID(CollectorUID::PowerUsage);
+
+        $power_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::AverageRateAbove);
+        $power_tariff = new UserTariff($power_tariff_reference);
+        $collector->setTariff($power_tariff);
+
+        $collector = $item->getCollectorByUID(CollectorUID::ColocationShared);
+
+        $flat_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::Flat);
+        $flat_tariff = new UserTariff($flat_tariff_reference);
+        $collector->setTariff($flat_tariff);
+
+        return $item;
+    }
+
+    function populateItemColocationPrivate(UserBillingItem $item) : UserBillingItem
+    {
+        $collector = $item->getCollectorByUID(CollectorUID::PowerUsage);
+
+        $power_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::AverageRateAbove);
+        $power_tariff = new UserTariff($power_tariff_reference);
+        $collector->setTariff($power_tariff);
+
+        return $item;
+    }
+
     #[Route('/user/billingitem/create/{user_id}', name: 'app_user_billing_item', methods: ['POST'])]
     public function create($user_id, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $uid = $data['uid'] ?? null; // Use null coalescing operator to avoid errors
+        $factor = $data['factor'] ?? 1;
 
-        // Validate the data (optional but recommended)
         if (!$uid) {
             return new JsonResponse(['error' => 'Missing required fields'], 400);
         }
@@ -47,7 +80,7 @@ final class UserBillingItemController extends AbstractController
 
         if ($ubo == null) {
             $user =  $this->entityManager->getRepository(User::class)->find($user_id);
-            $ubo = new UserBillingObject($user, $billingItemReference);
+            $ubo = new UserBillingObject($user, $billingItemReference, $factor);
             foreach($ubo->getUserBillingItems() as $item) {
                 CollectorFactory::createCollectors($item, $this->entityManager);
             }
@@ -57,19 +90,12 @@ final class UserBillingItemController extends AbstractController
 
 
         $root_item = $ubo->getUserBillingItems()->first();
-        $collector = $root_item->getCollectorByUID(CollectorUID::PowerUsage);
 
-        $power_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::PowerUsage);
-        $power_tariff = new UserTariff($power_tariff_reference);
-        // $power_tariff->setParam('rate', $power_rate_value);
-        $collector->setTariff($power_tariff);
-
-        $collector = $root_item->getCollectorByUID(CollectorUID::RackSpace);
-
-        $flat_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::Flat);
-        $flat_tariff = new UserTariff($flat_tariff_reference);
-        // $flat_tariff->setParam('rate', $flat_rate_value);
-        $collector->setTariff($flat_tariff);
+        if ($root_item->getBillingItemReference()->getUid() == BillingItemUID::ColocationShared) {
+            $root_item = $this->populateItemColocationShared($root_item);
+        } elseif ($root_item->getBillingItemReference()->getUid() == BillingItemUID::ColocationPrivate) {
+            $root_item = $this->populateItemColocationPrivate($root_item);
+        }
 
         $this->entityManager->persist($ubo);
         $this->entityManager->flush();
@@ -100,9 +126,7 @@ final class UserBillingItemController extends AbstractController
                 'collectors' => $collectorData,
             ];
         }
-
-
-        return $this->json([
+    return $this->json([
             'id' => $ubo->getId(),
             'billing_items' => $userBillingItems,
         ]);

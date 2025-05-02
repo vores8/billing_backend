@@ -20,18 +20,18 @@ class CollectorFactory {
 
 
     static public function createCollectors(UserBillingItem $item, EntityManagerInterface $manager): ?UserBillingItem {
-        if ($item->getReference()->getUid() == BillingItemUID::ColocationSingleRack) {
+        if ($item->getReference()->getUid() == BillingItemUID::ColocationShared) {
 
             $collector  = new Collector();
-            $collector->setUid(CollectorUID::RackSpace);
+            $collector->setUid(CollectorUID::ColocationShared);
 
-            $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::RackSpaceSingleRack);
+            $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::Flat);
             $collector->setTariff(new UserTariff($tr));
             $item->addCollector($collector);
 
             $collector  = new Collector();
             $collector->setUid(CollectorUID::PowerUsage);
-            $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::PowerUsage);
+            $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::AverageRateAbove);
             $collector->setTariff(new UserTariff($tr));
             $item->addCollector($collector);
         }
