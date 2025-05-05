@@ -61,7 +61,23 @@ class Tarificator {
 
     }
 
-    public static function apply(Collection $collectorData, UserTariff $tariff): float 
+    static function calculateCumulative(Collection $data) : float
+    {
+
+        if (count($data) <= 0) {
+            return 0;
+        }
+
+        $totalAmount = 0;
+        
+        for ($i = 0; $i < count($data); $i++) {
+            $totalAmount += $data[$i]->getAmount();
+        }
+
+        return $totalAmount;
+    }
+
+    public static function apply(Collection $collectorData, UserTariff $tariff, int $factor): float 
     {
 
         if ($tariff->getreference()->getUid() == TariffUID::Flat) {
@@ -75,24 +91,63 @@ class Tarificator {
             $average = Tarificator::calculateAverage($collectorData);
             $limit = $tariff->getParams()['limit'];
 
-            if ($average <= $limit)
+            $factoredLimit = $limit * $factor;
+
+            if ($average <= $factoredLimit)
             {
                 return $tariff->getParams()['rate'] * $average;
             }
             $belowLimit = $average;
-            $aboveLimit = $average - $limit;
+            $aboveLimit = $average - $factoredLimit;
 
             return $tariff->getParams()['rate'] * $belowLimit + $tariff->getParams()['above'] * $aboveLimit;
 
         }  elseif ($tariff->getreference()->getUid() == TariffUID::AverageFactorAbove) {
             $average = Tarificator::calculateAverage($collectorData);
             $limit = $tariff->getParams()['limit'];
-            if ($average <= $limit)
+
+            $factoredLimit = $limit * $factor;
+
+            if ($average <= $factoredLimit)
+            {
+                return $tariff->getParams()['rate'] * $average;
+            }
+            $belowLimit = $average;
+            $aboveLimit = $average - $factoredLimit;
+
+            return $tariff->getParams()['rate'] * $belowLimit + $tariff->getParams()['rate'] * $tariff->getParams()['factor'] * $aboveLimit;
+
+        } elseif ($tariff->getreference()->getUid() == TariffUID::Cumulative) {
+            $amount = Tarificator::calculateCumulative($collectorData);
+            return $tariff->getParams()['rate'] * $amount;
+
+        } elseif ($tariff->getreference()->getUid() == TariffUID::CumulativeRateAbove) {
+            $amount = Tarificator::calculateCumulative($collectorData);
+            $limit = $tariff->getParams()['limit'];
+
+            $factoredLimit = $limit * $factor;
+
+            if ($amount <= $factoredLimit)
             {
                 return $tariff->getParams()['rate'] * $amount;
             }
-            $belowLimit = $average;
-            $aboveLimit = $average - $limit;
+            $belowLimit = $amount;
+            $aboveLimit = $amount - $factoredLimit;
+
+            return $tariff->getParams()['rate'] * $belowLimit + $tariff->getParams()['rate'] * $aboveLimit;
+
+        }  elseif ($tariff->getreference()->getUid() == TariffUID::CumulativeFactorAbove) {
+            $amount = Tarificator::calculateCumulative($collectorData);
+            $limit = $tariff->getParams()['limit'];
+
+            $factoredLimit = $limit * $factor;
+
+            if ($amount <= $factoredLimit)
+            {
+                return $tariff->getParams()['rate'] * $amount;
+            }
+            $belowLimit = $amount;
+            $aboveLimit = $amount - $factoredLimit;
 
             return $tariff->getParams()['rate'] * $belowLimit + $tariff->getParams()['rate'] * $tariff->getParams()['factor'] * $aboveLimit;
 
@@ -113,8 +168,8 @@ class Tarificator {
     //         $collectors->add($collector);
 
     //         $collector  = new Collector();
-    //         $collector->setUid(CollectorUID::PowerUsage);
-    //         $tr = $this->manager->getRepository(TariffReference::class)->find(TariffUID::PowerUsage);
+    //         $collector->setUid(CollectorUID::CollectorDynamic);
+    //         $tr = $this->manager->getRepository(TariffReference::class)->find(TariffUID::CollectorDynamic);
     //         $collector->setTariff(new UserTariff($tr));
     //         $collectors->add($collector);
     //     }

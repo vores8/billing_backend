@@ -21,22 +21,35 @@ class CollectorFactory {
 
     static public function createCollectors(UserBillingItem $item, EntityManagerInterface $manager): ?UserBillingItem {
         if ($item->getReference()->getUid() == BillingItemUID::ColocationShared) {
-
             $collector  = new Collector();
-            $collector->setUid(CollectorUID::ColocationShared);
-
+            $collector->setUid(CollectorUID::CollectorStatic);
             $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::Flat);
             $collector->setTariff(new UserTariff($tr));
             $item->addCollector($collector);
-
             $collector  = new Collector();
-            $collector->setUid(CollectorUID::PowerUsage);
+            $collector->setUid(CollectorUID::CollectorDynamic);
             $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::AverageRateAbove);
             $collector->setTariff(new UserTariff($tr));
             $item->addCollector($collector);
         } elseif ($item->getReference()->getUid() == BillingItemUID::ColocationPrivateRack) {
             $collector  = new Collector();
-            $collector->setUid(CollectorUID::PowerUsage);
+            $collector->setUid(CollectorUID::CollectorStatic);
+            $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::OneTime);
+            $collector->setTariff(new UserTariff($tr));
+            $item->addCollector($collector);
+            $collector  = new Collector();
+            $collector->setUid(CollectorUID::CollectorDynamic);
+            $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::AverageFactorAbove);
+            $collector->setTariff(new UserTariff($tr));
+            $item->addCollector($collector);
+        }  elseif ($item->getReference()->getUid() == BillingItemUID::ColocationPrivateBlock) {
+            $collector  = new Collector();
+            $collector->setUid(CollectorUID::CollectorStatic);
+            $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::OneTime);
+            $collector->setTariff(new UserTariff($tr));
+            $item->addCollector($collector);
+            $collector  = new Collector();
+            $collector->setUid(CollectorUID::CollectorDynamic);
             $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::AverageFactorAbove);
             $collector->setTariff(new UserTariff($tr));
             $item->addCollector($collector);

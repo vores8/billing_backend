@@ -111,7 +111,7 @@ class UserBillingItem
         $amount = 0;
         foreach ($this->collectors as $collector) {
             $data = $collector->getDataRange($startDate, $endDate);
-            $newAmount = Tarificator::apply($data, $collector->getTariff());
+            $newAmount = Tarificator::apply($data, $collector->getTariff(), $this->factor);
             $amount = $amount + $newAmount;
         }
         return $amount;

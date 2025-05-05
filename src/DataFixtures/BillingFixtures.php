@@ -27,6 +27,16 @@ class BillingFixtures extends Fixture
         $item->setIsRoot(true);
         $manager->persist($item);
 
+        $item = new BillingItemReference(BillingItemUID::ColocationPrivateRack);
+        $item->setTitle('Colocation Private Rack');
+        $item->setIsRoot(true);
+        $manager->persist($item);
+
+        $item = new BillingItemReference(BillingItemUID::ColocationPrivateBlock);
+        $item->setTitle('Colocation Private Block');
+        $item->setIsRoot(true);
+        $manager->persist($item);
+
         $tariff = new TariffReference(TariffUID::Flat);
         $tariff->setTitle('flat tariff');
         $tariff->setParams(['rate' => 150]);

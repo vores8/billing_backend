@@ -62,7 +62,7 @@ class UserBillingTest extends KernelTestCase {
 
     }
 
-    public function testPowerUsage(): void {
+    public function testCollectorDynamic(): void {
 
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
 
@@ -80,7 +80,7 @@ class UserBillingTest extends KernelTestCase {
         $entityManager->flush();
 
         $root_item = $ubo->getUserBillingItems()->first();
-        $collector = $root_item->getCollectorByUID(CollectorUID::PowerUsage);
+        $collector = $root_item->getCollectorByUID(CollectorUID::CollectorDynamic);
 
         $data = new CollectorData();
         $data->setTimestamp(1);
@@ -132,7 +132,7 @@ class UserBillingTest extends KernelTestCase {
         $data->setAmount(10);
         $collector->addCollectorData($data);
 
-        $power_tariff_reference = $entityManager->getRepository(TariffReference::class)->find(TariffUID::PowerUsage);
+        $power_tariff_reference = $entityManager->getRepository(TariffReference::class)->find(TariffUID::CollectorDynamic);
         $power_tariff = new UserTariff($power_tariff_reference);
         $power_tariff->setParam('rate', $power_rate_value);
         $collector->setTariff($power_tariff);

@@ -32,15 +32,15 @@ final class UserBillingItemController extends AbstractController
 
 // functions to populate user billing items    
 
-    function populateItemColocationShared(UserBillingItem $item) : UserBillingItem
+    function populateItemColocationServer(UserBillingItem $item) : UserBillingItem
     {
-        $collector = $item->getCollectorByUID(CollectorUID::PowerUsage);
+        $collector = $item->getCollectorByUID(CollectorUID::CollectorDynamic);
 
         $power_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::AverageRateAbove);
         $power_tariff = new UserTariff($power_tariff_reference);
         $collector->setTariff($power_tariff);
 
-        $collector = $item->getCollectorByUID(CollectorUID::ColocationShared);
+        $collector = $item->getCollectorByUID(CollectorUID::CollectorStatic);
 
         $flat_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::Flat);
         $flat_tariff = new UserTariff($flat_tariff_reference);
@@ -49,9 +49,9 @@ final class UserBillingItemController extends AbstractController
         return $item;
     }
 
-    function populateItemColocationPrivate(UserBillingItem $item) : UserBillingItem
+    function populateItemColocationPrivateRack(UserBillingItem $item) : UserBillingItem
     {
-        $collector = $item->getCollectorByUID(CollectorUID::PowerUsage);
+        $collector = $item->getCollectorByUID(CollectorUID::CollectorDynamic);
 
         $power_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::AverageRateAbove);
         $power_tariff = new UserTariff($power_tariff_reference);
@@ -59,6 +59,18 @@ final class UserBillingItemController extends AbstractController
 
         return $item;
     }
+
+    function populateItemColocationPrivateBlock(UserBillingItem $item, int $factor) : UserBillingItem
+    {
+        $collector = $item->getCollectorByUID(CollectorUID::CollectorDynamic);
+
+        $power_tariff_reference = $this->entityManager->getRepository(TariffReference::class)->find(TariffUID::AverageFactorAbove);
+        $power_tariff = new UserTariff($power_tariff_reference, $factor);
+        $collector->setTariff($power_tariff);
+
+        return $item;
+    }
+
 
     #[Route('/user/billingitem/create/{user_id}', name: 'app_user_billing_item', methods: ['POST'])]
     public function create($user_id, Request $request): JsonResponse
@@ -76,9 +88,9 @@ final class UserBillingItemController extends AbstractController
             return new JsonResponse(['error' => 'Billing item reference not found'], 400);
         }
 
-        $ubo = $this->entityManager->getRepository(UserBillingObject::class)->findOneBy(['user' => $user_id]);
+        // $ubo = $this->entityManager->getRepository(UserBillingObject::class)->findOneBy(['user' => $user_id]);
 
-        if ($ubo == null) {
+        // if ($ubo == null) {
             $user =  $this->entityManager->getRepository(User::class)->find($user_id);
             $ubo = new UserBillingObject($user, $billingItemReference, $factor);
             foreach($ubo->getUserBillingItems() as $item) {
@@ -86,49 +98,49 @@ final class UserBillingItemController extends AbstractController
             }
             $this->entityManager->persist($ubo);
             $this->entityManager->flush();    
-        }
+        // }
 
 
-        $root_item = $ubo->getUserBillingItems()->first();
+        $root_item = $ubo->getUserBillingItem();
 
         if ($root_item->getBillingItemReference()->getUid() == BillingItemUID::ColocationShared) {
             $root_item = $this->populateItemColocationShared($root_item);
-        } elseif ($root_item->getBillingItemReference()->getUid() == BillingItemUID::ColocationPrivate) {
-            $root_item = $this->populateItemColocationPrivate($root_item);
+        } elseif ($root_item->getBillingItemReference()->getUid() == BillingItemUID::ColocationPrivateRack) {
+            $root_item = $this->populateItemColocationPrivateRack($root_item);
+        }  elseif ($root_item->getBillingItemReference()->getUid() == BillingItemUID::ColocationPrivateBlock) {
+            $root_item = $this->populateItemColocationPrivateBlock($root_item, $factor);
         }
 
         $this->entityManager->persist($ubo);
         $this->entityManager->flush();
 
-        $userBillingItems = [];
-        foreach($ubo->getUserBillingItems() as $item) {
-            $collectorData = [];
-            foreach($item->getCollectors() as $collector) {
+        $item = $ubo->getUserBillingItem();
+        $collectorData = [];
+        foreach($item->getCollectors() as $collector) {
 
-                $tariff = $collector->getTariff();
-                $tariffData = [
-                    'id' => $tariff->getId(),
-                    'reference' => $tariff->getReference()->getUid(),
-                    'title' => $tariff->getReference()->getTitle(),
-                    'params' => $tariff->getParams(),
-                ];
+            $tariff = $collector->getTariff();
+            $tariffData = [
+                'id' => $tariff->getId(),
+                'reference' => $tariff->getReference()->getUid(),
+                'title' => $tariff->getReference()->getTitle(),
+                'params' => $tariff->getParams(),
+            ];
 
-                $collectorData[] = [
-                    'id' => $collector->getId(),
-                    'reference' => $collector->getUid(),
-                    'tariff' => $tariffData,
-                ];
-            }
-            $userBillingItems[]  = [
-                'id' => $item->getId(),
-                'reference' => $item->getReference()->getUid(),
-                'title' => $item->getReference()->getTitle(),
-                'collectors' => $collectorData,
+            $collectorData[] = [
+                'id' => $collector->getId(),
+                'reference' => $collector->getUid(),
+                'tariff' => $tariffData,
             ];
         }
+        $userBillingItem  = [
+            'id' => $item->getId(),
+            'reference' => $item->getReference()->getUid(),
+            'title' => $item->getReference()->getTitle(),
+            'collectors' => $collectorData,
+        ];
     return $this->json([
             'id' => $ubo->getId(),
-            'billing_items' => $userBillingItems,
+            'billing_item' => $userBillingItem,
         ]);
     }
 
@@ -139,36 +151,34 @@ final class UserBillingItemController extends AbstractController
 
         $ubo = $this->entityManager->getRepository(UserBillingObject::class)->findOneBy(['user' => $user_id]);
 
-        $userBillingItems = [];
-        foreach($ubo->getUserBillingItems() as $item) {
-            $collectorData = [];
-            foreach($item->getCollectors() as $collector) {
+        $item = $ubo->getUserBillingItem();
+        $collectorData = [];
+        foreach($item->getCollectors() as $collector) {
 
-                $tariff = $collector->getTariff();
-                $tariffData = [
-                    'id' => $tariff->getId(),
-                    'reference' => $tariff->getReference()->getUid(),
-                    'title' => $tariff->getReference()->getTitle(),
-                    'params' => $tariff->getParams(),
-                ];
+            $tariff = $collector->getTariff();
+            $tariffData = [
+                'id' => $tariff->getId(),
+                'reference' => $tariff->getReference()->getUid(),
+                'title' => $tariff->getReference()->getTitle(),
+                'params' => $tariff->getParams(),
+            ];
 
-                $collectorData[] = [
-                    'id' => $collector->getId(),
-                    'reference' => $collector->getUid(),
-                    'tariff' => $tariffData,
-                ];
-            }
-            $userBillingItems[]  = [
-                'id' => $item->getId(),
-                'reference' => $item->getReference()->getUid(),
-                'title' => $item->getReference()->getTitle(),
-                'collectors' => $collectorData,
+            $collectorData[] = [
+                'id' => $collector->getId(),
+                'reference' => $collector->getUid(),
+                'tariff' => $tariffData,
             ];
         }
+        $userBillingItem  = [
+            'id' => $item->getId(),
+            'reference' => $item->getReference()->getUid(),
+            'title' => $item->getReference()->getTitle(),
+            'collectors' => $collectorData,
+        ];
 
         return $this->json([
             'id' => $ubo->getId(),
-            'billing_items' => $userBillingItems,
+            'billing_item' => $userBillingItem,
         ]);
     }
 
@@ -181,19 +191,15 @@ final class UserBillingItemController extends AbstractController
 
         $ubo = $this->entityManager->getRepository(UserBillingObject::class)->findOneBy(['user' => $user_id]);
 
-        $amountDue = [];
-        foreach($ubo->getUserBillingItems() as $item) {
-            $amountDue[]  = [
-                'id' => $item->getId(),
-                'amount' => $item->getAmountDue($startDate, $endDate),
-            ];
-        }
+        $item = $ubo->getUserBillingItem();
+        $amountDue  = [
+            'id' => $item->getId(),
+            'amount' => $item->getAmountDue($startDate, $endDate),
+        ];
 
         return $this->json([
             'id' => $ubo->getId(),
             'amount_due' => $amountDue,
         ]);
     }
-
-
 }

@@ -30,8 +30,8 @@ class UserBillingObject
     /**
      * @var Collection<int, UserBilingItem>
      */
-    #[ORM\OneToMany(targetEntity: UserBillingItem::class, mappedBy: 'userBillingObject', orphanRemoval: true, cascade: ['persist'])]
-    private Collection $billingItems;
+    #[ORM\OneToOne(targetEntity: UserBillingItem::class, mappedBy: 'userBillingObject', orphanRemoval: true, cascade: ['persist'])]
+    private UserBillingItem $billingItem;
 
     #[ORM\ManyToOne(inversedBy: 'billigObject')]
     private ?User $user = null;
@@ -41,7 +41,7 @@ class UserBillingObject
         $this->setUser($user);
         $this->billingItems = new ArrayCollection();
         $data = new UserBillingItem($item, $factor);
-        $this->addUserBillingItem($data);
+        $this->setUserBillingItem($data);
     }
 
     public function getId(): ?int
@@ -62,48 +62,24 @@ class UserBillingObject
     // }
 
     /**
-     * @return Collection<int, UserBilingItem>
+     * @return UserBilingItem
      */
-    public function getUserBillingItems(): Collection
+    public function getUserBillingItem(): UserBillingItem
     {
-        return $this->billingItems;
+        return $this->billingItem;
     }
 
-    public function addUserBillingItem(UserBillingItem $item): static
+    public function setUserBillingItem(UserBillingItem $item): static
     {
-        if (!$this->billingItems->contains($item)) {
-            $this->billingItems->add($item);
-            $item->setUserBillingObject($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserBillingItem(UserBillingItem $userBillingItem): static
-    {
-        if ($this->billingItems->removeElement($userBillingItem)) {
-            // set the owning side to null (unless already changed)
-            if ($userBillingItem->getUserBillingObject() === $this) {
-                $userBillingItem->setUserBillingObject(null);
-            }
-        }
-
+        $this->billingItem = $item;
         return $this;
     }
 
     public function getAmountDue(int $startDate, int $endDate)
     {
         $amount = 0;
-        foreach ($this->billingItems as $billingItem) {
-            $amount = $amount + $billingItem->getAmountDue($startDate, $endDate);
-        }
+        $amount = $amount + $billingItem->getAmountDue($startDate, $endDate);
         return $amount;
-    }
-    public function getUserBillingItemByUID(string $uid): ?UserBillingItem {
-        $array = $this->billingItems->filter( function ($entity) use ($uid) {
-            return $entity->getReference()->getUid() == $uid;
-        });
-        return $array->first();
     }
 
     public function getUser(): ?User
