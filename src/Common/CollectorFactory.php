@@ -20,7 +20,7 @@ class CollectorFactory {
 
 
     static public function createCollectors(UserBillingItem $item, EntityManagerInterface $manager): ?UserBillingItem {
-        if ($item->getReference()->getUid() == BillingItemUID::ColocationShared) {
+        if ($item->getReference()->getUid() == BillingItemUID::ColocationServer) {
             $collector  = new Collector();
             $collector->setUid(CollectorUID::CollectorStatic);
             $tr = $manager->getRepository(TariffReference::class)->find(TariffUID::Flat);

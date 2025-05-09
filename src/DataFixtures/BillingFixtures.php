@@ -13,7 +13,7 @@ use App\Entity\TariffReference;
 use App\Entity\UserBillingObject;
 use App\Entity\UserBilingItem;
 use App\Factory\CollectorFactory;
-// use App\Entity\User;
+use App\Entity\User;
 // use App\Entity\UserBilling;
 // use App\Entity\ColocationSingleRack;
 // use App\Entity\ColocationStep;
@@ -22,8 +22,8 @@ class BillingFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $item = new BillingItemReference(BillingItemUID::ColocationShared);
-        $item->setTitle('Colocation Shared');
+        $item = new BillingItemReference(BillingItemUID::ColocationServer);
+        $item->setTitle('Colocation Server');
         $item->setIsRoot(true);
         $manager->persist($item);
 
@@ -44,7 +44,7 @@ class BillingFixtures extends Fixture
 
         $tariff = new TariffReference(TariffUID::Average);
         $tariff->setTitle('average with rate');
-        $tariff->setParams(['rate' => 1, 'limit' => 1, 'above' => 1]);
+        $tariff->setParams(['rate' => 1]);
         $manager->persist($tariff);
 
         $tariff = new TariffReference(TariffUID::AverageRateAbove);

@@ -37,11 +37,8 @@ class UserBillingObject
     private ?User $user = null;
 
     public function __construct(User $user, BillingItemReference $item, int $factor = 1) {
-        // $this->repositoryBillingItem = $item;
         $this->setUser($user);
-        $this->billingItems = new ArrayCollection();
-        $data = new UserBillingItem($item, $factor);
-        $this->setUserBillingItem($data);
+        $this->setUserBillingItem(new UserBillingItem($item, $factor));
     }
 
     public function getId(): ?int
@@ -72,13 +69,14 @@ class UserBillingObject
     public function setUserBillingItem(UserBillingItem $item): static
     {
         $this->billingItem = $item;
+        $item->setUserBillingObject($this);
         return $this;
     }
 
     public function getAmountDue(int $startDate, int $endDate)
     {
         $amount = 0;
-        $amount = $amount + $billingItem->getAmountDue($startDate, $endDate);
+        $amount = $amount + $this->billingItem->getAmountDue($startDate, $endDate);
         return $amount;
     }
 
